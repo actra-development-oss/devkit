@@ -103,15 +103,15 @@ export class DevServerBuilder implements Builder<DevServerBuilderOptions> {
     let browserOptions: BrowserBuilderSchema;
 
     return checkPort(options.port, options.host).pipe(
-      tap(port => options.port = port),
+      tap((port: any) => options.port = port),
       concatMap(() => this._getBrowserOptions(options)),
-      tap(opts => browserOptions = opts),
+      tap((opts: any) => browserOptions = opts),
       concatMap(() => addFileReplacements(root, host, browserOptions.fileReplacements)),
       concatMap(() => normalizeAssetPatterns(
         browserOptions.assets, host, root, projectRoot, builderConfig.sourceRoot)),
       // Replace the assets in options with the normalized version.
-      tap((assetPatternObjects => browserOptions.assets = assetPatternObjects)),
-      concatMap(() => new Observable(obs => {
+      tap(((assetPatternObjects: any) => browserOptions.assets = assetPatternObjects)),
+      concatMap(() => new Observable((obs: any) => {
         const browserBuilder = new BrowserBuilder(this.context);
         const webpackConfig = browserBuilder.buildWebpackConfig(root, projectRoot, host,
           builderConfig.target, browserOptions as NormalizedBrowserBuilderSchema);
@@ -461,9 +461,9 @@ export class DevServerBuilder implements Builder<DevServerBuilderOptions> {
     };
 
     return architect.getBuilderDescription(builderConfig).pipe(
-      concatMap(browserDescription =>
+      concatMap((browserDescription: any) =>
         architect.validateBuilderOptions(builderConfig, browserDescription)),
-      map(browserConfig => browserConfig.options),
+      map((browserConfig: any) => browserConfig.options),
     );
   }
 }

@@ -67,8 +67,8 @@ export class BrowserBuilder implements Builder<BrowserBuilderSchema> {
       concatMap(() => normalizeAssetPatterns(
         options.assets, host, root, projectRoot, builderConfig.sourceRoot)),
       // Replace the assets in options with the normalized version.
-      tap((assetPatternObjects => options.assets = assetPatternObjects)),
-      concatMap(() => new Observable(obs => {
+      tap(((assetPatternObjects: any) => options.assets = assetPatternObjects)),
+      concatMap(() => new Observable((obs: any) => {
         // Ensure Build Optimizer is only used with AOT.
         if (options.buildOptimizer && !options.aot) {
           throw new Error('The `--build-optimizer` option cannot be used without `--aot`.');
@@ -86,7 +86,7 @@ export class BrowserBuilder implements Builder<BrowserBuilderSchema> {
         const webpackCompiler = webpack(webpackConfig);
         const statsConfig = getWebpackStatsConfig(options.verbose);
 
-        const callback: webpack.compiler.CompilerCallback = (err, stats) => {
+        const callback: webpack.compiler.CompilerCallback = (err: any, stats: any) => {
           if (err) {
             return obs.error(err);
           }
@@ -225,7 +225,7 @@ export class BrowserBuilder implements Builder<BrowserBuilderSchema> {
     }
 
     return host.exists(resolvedOutputPath).pipe(
-      concatMap(exists => exists
+      concatMap((exists: any) => exists
         // TODO: remove this concat once host ops emit an event.
         ? concat(host.delete(resolvedOutputPath), of(null)).pipe(last())
         // ? of(null)

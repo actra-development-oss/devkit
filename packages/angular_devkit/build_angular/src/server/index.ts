@@ -12,6 +12,7 @@ import {
   BuilderConfiguration,
   BuilderContext,
 } from '@angular-devkit/architect';
+import * as fs from 'fs';
 import { Path, getSystemPath, normalize, resolve, virtualFs } from '@angular-devkit/core';
 import * as fs from 'fs';
 import { Stats } from 'fs';
