@@ -62,7 +62,6 @@ export interface DevServerBuilderOptions {
   baseHref?: string;
   progress?: boolean;
   poll?: number;
-  webpackConfig?: string;
 }
 
 interface WebpackDevServerConfigurationOptions {
@@ -103,9 +102,9 @@ export class DevServerBuilder implements Builder<DevServerBuilderOptions> {
     let browserOptions: BrowserBuilderSchema;
 
     return checkPort(options.port, options.host).pipe(
-      tap(port => options.port = port),
+      tap((port) => options.port = port),
       concatMap(() => this._getBrowserOptions(options)),
-      tap(opts => browserOptions = opts),
+      tap((opts) => browserOptions = opts),
       concatMap(() => addFileReplacements(root, host, browserOptions.fileReplacements)),
       concatMap(() => normalizeAssetPatterns(
         browserOptions.assets, host, root, projectRoot, builderConfig.sourceRoot)),
@@ -113,8 +112,8 @@ export class DevServerBuilder implements Builder<DevServerBuilderOptions> {
       tap((assetPatternObjects => browserOptions.assets = assetPatternObjects)),
       concatMap(() => new Observable(obs => {
         const browserBuilder = new BrowserBuilder(this.context);
-        const webpackConfig = browserBuilder.buildWebpackConfig(root, projectRoot, host,
-          builderConfig.target, browserOptions as NormalizedBrowserBuilderSchema);
+        const webpackConfig = browserBuilder.buildWebpackConfig(
+          root, projectRoot, host, browserOptions as NormalizedBrowserBuilderSchema);
         const statsConfig = getWebpackStatsConfig(browserOptions.verbose);
 
         let webpackDevServerConfig: WebpackDevServerConfigurationOptions;
@@ -200,7 +199,7 @@ export class DevServerBuilder implements Builder<DevServerBuilderOptions> {
               this.context.logger.info(statsErrorsToString(json, statsConfig));
             }
           }
-          obs.next({ success: true });
+          obs.next({ success: !stats.hasErrors() });
 
           if (first && options.open) {
             first = false;
@@ -297,7 +296,7 @@ export class DevServerBuilder implements Builder<DevServerBuilderOptions> {
     let webpackDevServerPath;
     try {
       webpackDevServerPath = require.resolve('webpack-dev-server/client');
-    } catch (error) {
+    } catch {
       throw new Error('The "webpack-dev-server" package could not be found.');
     }
     const entryPoints = [`${webpackDevServerPath}?${clientAddress}`];
@@ -437,14 +436,12 @@ export class DevServerBuilder implements Builder<DevServerBuilderOptions> {
   private _getBrowserOptions(options: DevServerBuilderOptions) {
     const architect = this.context.architect;
     const [project, target, configuration] = options.browserTarget.split(':');
-    // Override browser build watch setting.
-    const overrides = { watch: options.watch };
-    const browserTargetSpec = { project, target, configuration, overrides };
-    const builderConfig = architect.getBuilderConfiguration<BrowserBuilderSchema>(
-      browserTargetSpec);
 
-    // Update the browser options with the same options we support in serve, if defined.
-    builderConfig.options = {
+    const overrides = {
+      // Override browser build watch setting.
+      watch: options.watch,
+
+      // Update the browser options with the same options we support in serve, if defined.
       ...(options.optimization !== undefined ? { optimization: options.optimization } : {}),
       ...(options.aot !== undefined ? { aot: options.aot } : {}),
       ...(options.sourceMap !== undefined ? { sourceMap: options.sourceMap } : {}),
@@ -454,11 +451,11 @@ export class DevServerBuilder implements Builder<DevServerBuilderOptions> {
       ...(options.baseHref !== undefined ? { baseHref: options.baseHref } : {}),
       ...(options.progress !== undefined ? { progress: options.progress } : {}),
       ...(options.poll !== undefined ? { poll: options.poll } : {}),
-
-      ...builderConfig.options,
-
-      ...(options.webpackConfig !== undefined ? { webpackConfig: options.webpackConfig } : {}),
     };
+
+    const browserTargetSpec = { project, target, configuration, overrides };
+    const builderConfig = architect.getBuilderConfiguration<BrowserBuilderSchema>(
+      browserTargetSpec);
 
     return architect.getBuilderDescription(builderConfig).pipe(
       concatMap(browserDescription =>

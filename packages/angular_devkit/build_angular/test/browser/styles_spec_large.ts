@@ -220,7 +220,7 @@ describe('Browser Builder styles', () => {
     runTargetSpec(host, browserTargetSpec, overrides).pipe(
       tap((buildEvent) => expect(buildEvent.success).toBe(true)),
     ).subscribe(undefined, done.fail, done);
-  }, Timeout.Basic);
+  }, Timeout.Complex);
 
   extensionsWithVariableSupport.forEach(ext => {
     it(`supports ${ext} includePaths`, (done) => {
@@ -389,7 +389,7 @@ describe('Browser Builder styles', () => {
           '/*! important-comment */div{-ms-flex:1;flex:1}');
       }),
     ).subscribe(undefined, done.fail, done);
-  }, Timeout.Standard);
+  }, Timeout.Complex);
 
   // TODO: consider making this a unit test in the url processing plugins.
   it(`supports baseHref and deployUrl in resource urls`, (done) => {

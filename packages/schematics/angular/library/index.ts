@@ -82,6 +82,13 @@ function updateTsConfig(packageName: string, distRoot: string) {
         tsconfig.compilerOptions.paths[packageName] = [];
       }
       tsconfig.compilerOptions.paths[packageName].push(distRoot);
+
+      // deep import & secondary entrypoint support
+      const deepPackagePath = packageName + '/*';
+      if (!tsconfig.compilerOptions.paths[deepPackagePath]) {
+        tsconfig.compilerOptions.paths[deepPackagePath] = [];
+      }
+      tsconfig.compilerOptions.paths[deepPackagePath].push(distRoot + '/*');
     });
   };
 }
@@ -246,7 +253,9 @@ export default function (options: LibraryOptions): Rule {
         project: options.name,
       }),
       (_tree: Tree, context: SchematicContext) => {
-        context.addTask(new NodePackageInstallTask());
+        if (!options.skipPackageJson) {
+          context.addTask(new NodePackageInstallTask());
+        }
       },
     ])(host, context);
   };
